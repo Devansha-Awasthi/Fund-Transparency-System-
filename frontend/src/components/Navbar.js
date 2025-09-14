@@ -23,7 +23,7 @@ const Navbar = () => {
     userProfile, 
     signOut 
   } = useAuth();
-  const { account, connectWallet, disconnectWallet, isConnecting } = useWallet();
+  const { account, connectWallet, disconnectWallet, isConnecting, isDisconnecting, disconnectTimestamp } = useWallet();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const location = useLocation();
 
@@ -113,23 +113,33 @@ const Navbar = () => {
                 </div>
 
                 {/* Wallet Connection */}
-                {account ? (
-                  <button
-                    onClick={disconnectWallet}
-                    className="btn-secondary text-sm"
-                  >
-                    Disconnect Wallet
-                  </button>
-                ) : (
-                  <button
-                    onClick={connectWallet}
-                    disabled={isConnecting}
-                    className="btn-primary flex items-center space-x-2 text-sm"
-                  >
-                    <Wallet className="w-4 h-4" />
-                    <span>{isConnecting ? 'Connecting...' : 'Connect Wallet'}</span>
-                  </button>
-                )}
+                <div key={`wallet-${disconnectTimestamp || 'connected'}`}>
+                  {account ? (
+                    <button
+                      onClick={disconnectWallet}
+                      disabled={isDisconnecting}
+                      className="btn-secondary text-sm flex items-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {isDisconnecting ? (
+                        <>
+                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-600"></div>
+                          <span>Disconnecting...</span>
+                        </>
+                      ) : (
+                        <span>Disconnect Wallet</span>
+                      )}
+                    </button>
+                  ) : (
+                    <button
+                      onClick={connectWallet}
+                      disabled={isConnecting}
+                      className="btn-primary flex items-center space-x-2 text-sm"
+                    >
+                      <Wallet className="w-4 h-4" />
+                      <span>{isConnecting ? 'Connecting...' : 'Connect Wallet'}</span>
+                    </button>
+                  )}
+                </div>
 
                 {/* Sign Out */}
                 <button
@@ -217,29 +227,39 @@ const Navbar = () => {
                       )}
                     </div>
                     
-                    {account ? (
-                      <button
-                        onClick={() => {
-                          disconnectWallet();
-                          setIsMenuOpen(false);
-                        }}
-                        className="w-full btn-secondary text-sm mx-3"
-                      >
-                        Disconnect Wallet
-                      </button>
-                    ) : (
-                      <button
-                        onClick={() => {
-                          connectWallet();
-                          setIsMenuOpen(false);
-                        }}
-                        disabled={isConnecting}
-                        className="w-full btn-primary flex items-center justify-center space-x-2 text-sm mx-3"
-                      >
-                        <Wallet className="w-4 h-4" />
-                        <span>{isConnecting ? 'Connecting...' : 'Connect Wallet'}</span>
-                      </button>
-                    )}
+                    <div key={`mobile-wallet-${disconnectTimestamp || 'connected'}`}>
+                      {account ? (
+                        <button
+                          onClick={() => {
+                            disconnectWallet();
+                            setIsMenuOpen(false);
+                          }}
+                          disabled={isDisconnecting}
+                          className="w-full btn-secondary text-sm mx-3 flex items-center justify-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          {isDisconnecting ? (
+                            <>
+                              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-600"></div>
+                              <span>Disconnecting...</span>
+                            </>
+                          ) : (
+                            <span>Disconnect Wallet</span>
+                          )}
+                        </button>
+                      ) : (
+                        <button
+                          onClick={() => {
+                            connectWallet();
+                            setIsMenuOpen(false);
+                          }}
+                          disabled={isConnecting}
+                          className="w-full btn-primary flex items-center justify-center space-x-2 text-sm mx-3"
+                        >
+                          <Wallet className="w-4 h-4" />
+                          <span>{isConnecting ? 'Connecting...' : 'Connect Wallet'}</span>
+                        </button>
+                      )}
+                    </div>
                     
                     <button
                       onClick={() => {
